@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tugas Holdings — Nova Senha</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #071426;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .card {
+      width: 420px;
+      max-width: calc(100% - 32px);
+      padding: 38px;
+      background: #0d1d33;
+      border: 1px solid #263a55;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #9fb0c7;
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      border: 1px solid #34465e;
+      background: #081525;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #e7b85c;
+      color: #071426;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #message {
+      display: none;
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .success {
+      display: block !important;
+      background: #123c2b;
+      border: 1px solid #276749;
+    }
+
+    .error {
+      display: block !important;
+      background: #451a1a;
+      border: 1px solid #7f1d1d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Tugas Holdings</h1>
+    <div class="subtitle">Definir nova senha</div>
+
+    <label for="password">Nova senha</label>
+    <input id="password" type="password" autocomplete="new-password">
+
+    <label for="confirmPassword">Confirmar nova senha</label>
+    <input id="confirmPassword" type="password" autocomplete="new-password">
+
+    <button id="saveButton" onclick="changePassword()">
+      Alterar senha
+    </button>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://bmfpffsrktbudrkbgohe.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_cmUjA5fsVSQcPSx9FGc0Yw_dj8Xc5Cr';
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    function showMessage(text, type) {
+      const box = document.getElementById('message');
+      box.className = type;
+      box.textContent = text;
+    }
+
+    async function changePassword() {
+      const password = document.getElementById('password').value;
+      const confirmPassword =
+        document.getElementById('confirmPassword').value;
+
+      if (password.length < 8) {
+        showMessage(
+          'A nova senha deve ter pelo menos 8 caracteres.',
+          'error'
+        );
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage(
+          'As duas senhas não são iguais.',
+          'error'
+        );
+        return;
+      }
+
+      const button = document.getElementById('saveButton');
+      button.disabled = true;
+      button.textContent = 'Alterando senha...';
+
+      const { error } = await supabaseClient.auth.updateUser({
+        password: password
+      });
+
+      if (error) {
+        showMessage(
+          'Não foi possível alterar a senha. Abra novamente o link recebido por e-mail.',
+          'error'
+        );
+
+        button.disabled = false;
+        button.textContent = 'Alterar senha';
+        return;
+      }
+
+      showMessage(
+        'Senha alterada com sucesso. Você já pode fechar esta página e entrar novamente no Tugas Holdings.',
+        'success'
+      );
+
+      button.textContent = 'Senha alterada';
+    }
+  </script>
+</body>
+</html>
